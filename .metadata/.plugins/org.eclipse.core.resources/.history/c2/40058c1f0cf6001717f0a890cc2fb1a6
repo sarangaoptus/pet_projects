@@ -1,0 +1,57 @@
+package jsonLoad
+import org.apache.spark._
+import org.apache.spark.SparkContext._
+import org.apache.log4j._
+import scala.io.Source
+import java.nio.charset.CodingErrorAction
+import scala.io.Codec
+import org.apache.spark.mllib.recommendation._
+
+
+object mydataload {
+ def addValue (line:String) : String = {
+   var elements = line.split(",")
+   var i : Int = 0 
+   var results:String  = null
+   var outputstr:String = null
+   for (i <- 0 to (elements.length - 1 )){
+    
+     if (elements(i).indexOf("link_data") > 0 ){
+        var st = elements(i).indexOf("link_data")
+        var results =  elements(i).substring((st+13),st+45)
+     }
+     else {results = elements(i).indexOf("link_data").toString }
+   outputstr  += results 
+   }
+   
+ 
+   return outputstr
+ }
+  
+ def main(args: Array[String]) {
+    
+    // Set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    
+     // Create a SparkContext using every core of the local machine
+     val sc = new SparkContext("local[*]", "mydataload")
+    
+   
+    val data = sc.textFile("./sample.json")
+    
+    //val ratings = data.map( x => x.split('\t') ).map( x => Rating(x(0).toInt, x(1).toInt, x(2).toDouble) ).cache()
+      val ratings  = data.map(x => (addValue(x)))
+    
+      ratings.collect().foreach(a => println(a))
+    }
+    
+  
+
+}
+ 
+ 
+ 
+ 
+ 
+
+
